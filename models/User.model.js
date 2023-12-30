@@ -40,7 +40,12 @@ const userSchema = new mongoose.Schema(
       default: 100, // within 3 days
     },
     nextBillingDate: Date,
-    payments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Payment" }],
+    payments: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Payment",
+      },
+    ],
     history: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -48,10 +53,11 @@ const userSchema = new mongoose.Schema(
       },
     ],
   },
-  { timestamps: true, 
-    toJSON: { virtuals: true },    //This option suggests that Mongoose should include virtual properties when converting a document to JSON
-     toObject: { virtuals: true }  // virtual properties should be included when converting a Mongoose document to a plain JavaScript object
- }   
+  {
+    timestamps: true,
+    toJSON: { virtuals: true }, //This option suggests that Mongoose should include virtual properties when converting a document to JSON
+    toObject: { virtuals: true }, // virtual properties should be included when converting a Mongoose document to a plain JavaScript object
+  }
 );
 
 //virtual properties: Virtual properties are additional properties that are not stored in the database but are computed based on the existing data in the document.
