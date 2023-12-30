@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const asyncHandler = require("express-async-handler");
 
-// registration
+//!-----registration-----
 // asyncherror handler is used to handle the asynchronous error  and it is the best practive instead of the try and catch method , it make the error handling more streamline
 const register = asyncHandler(async (req, res) => {
   const { username, email, password } = req.body;
@@ -47,6 +47,8 @@ const register = asyncHandler(async (req, res) => {
   });
 });
 
+
+///! ---------login----------
 const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
@@ -83,15 +85,21 @@ const login = asyncHandler(async (req, res) => {
   });
 });
 
+
+
+//!--------Logout---------
 const logout = asyncHandler(async (req, res) => {
   res.cookie("token", "", { maxAge: 1 });
   return res.status(200).json({ message: "logged out successfull" });
 });
 
+
+
+//!---------Profile---------
 const profile = asyncHandler(async (req, res) => {
   console.log(req.user);
-  const id = "658f9e41f2efb6eaa638ddab";
-  const user = await User.findById(id).select("-password"); // .select("-element")  this is to remove the desire information in the response
+ 
+  const user = await User.findById(req?.user?.id).select("-password"); // req?.user?.id :to dynamically check for the user authentication from the req.user
   if (user) {
     res.status(200).json({
       status: "user found",

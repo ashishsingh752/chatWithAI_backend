@@ -16,7 +16,7 @@ const openAIController = asyncHandler(async (req, res) => {
       {
         model: "gpt-3.5-turbo-instruct",
         prompt,
-        max_tokens: 30,
+        max_tokens: 3,
       },
       {
         headers: {
@@ -37,6 +37,7 @@ const openAIController = asyncHandler(async (req, res) => {
     // // put the content into the user
     const userFound = await User.findById(req?.user?.id);
     userFound.history.push(newContent?._id);
+    userFound.apiRequestCount +=1 ;  // updating the api request count for each request 
     await userFound.save();
 
     res.status(200).json(content);
