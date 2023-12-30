@@ -1,10 +1,12 @@
 const express = require("express");
 const userRouter = require("./routes/user.route");
-require("dotenv").config();
 const connectDB = require("./utils/connectDB");
 const { errorhandler } = require("./middleware/error.middleware");
 const cookieParser = require("cookie-parser");
 const {openAIRouter} = require("./routes/openAI.route");
+const paymentRouter = require("./routes/stripePayment.route");
+// const { handleStripePayment } = require("./controllers/payment.controller");
+require("dotenv").config();
     
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -16,6 +18,7 @@ app.use(express.urlencoded({ extended: false }));
 //----Routes---
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/openAI", openAIRouter);
+app.use("/api/v1/payment", paymentRouter);
 
 app.use(errorhandler); // middleware should come after the setting up the routes
 connectDB("mongodb://127.0.0.1:27017/searchapp");
