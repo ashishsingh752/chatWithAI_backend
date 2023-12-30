@@ -63,7 +63,7 @@ const login = asyncHandler(async (req, res) => {
   }
 
   // generate the token for the user
-  const token = jwt.sign({ id: user?._id }, process.env.JWT_SECRETE, {
+  const token = jwt.sign({ id: user?._id }, process.env.JWT_SECRET, {
     expiresIn: "3d", // token will expire in 3 days
   });
 
@@ -83,7 +83,29 @@ const login = asyncHandler(async (req, res) => {
   });
 });
 
+const logout = asyncHandler(async (req, res) => {
+  res.cookie("token", "", { maxAge: 1 });
+  return res.status(200).json({ message: "logged out successfull" });
+});
+
+const profile = asyncHandler(async (req, res) => {
+  console.log(req.user);
+  const id = "658f9e41f2efb6eaa638ddab";
+  const user = await User.findById(id).select("-password"); // .select("-element")  this is to remove the desire information in the response
+  if (user) {
+    res.status(200).json({
+      status: "user found",
+      user,
+    });
+  } else {
+    res.status(404);
+    throw new Error("user not found in the database");
+  }
+});
+
 module.exports = {
   register,
   login,
+  logout,
+  profile,
 };
