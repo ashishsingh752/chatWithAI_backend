@@ -33,11 +33,11 @@ const userSchema = new mongoose.Schema(
     },
     apiRequestCount: {
       type: Number,
-      default: 0,
+      default: 10,
     },
     monthlyRequestCount: {
       type: Number,
-      default: 0,
+      default: 100, // within 3 days
     },
     nextBillingDate: Date,
     payments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Payment" }],
@@ -48,8 +48,18 @@ const userSchema = new mongoose.Schema(
       },
     ],
   },
-  { timestamps: true } // Corrected typo here
+  { timestamps: true, 
+    toJSON: { virtuals: true },    //This option suggests that Mongoose should include virtual properties when converting a document to JSON
+     toObject: { virtuals: true }  // virtual properties should be included when converting a Mongoose document to a plain JavaScript object
+ }   
 );
+
+//virtual properties: Virtual properties are additional properties that are not stored in the database but are computed based on the existing data in the document.
+// but we can have access to it upon querying adding virtual properties for the 3 day trial and query expiration
+
+userSchema.virtual("isTrialActive").get(function () {
+  return this.trialActive && new Date() < this.trialExpires;
+});
 
 const User = mongoose.model("User", userSchema);
 module.exports = User;
