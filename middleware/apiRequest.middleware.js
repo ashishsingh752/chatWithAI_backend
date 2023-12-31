@@ -14,7 +14,7 @@ const apiReqest = asyncHandler(async(req,res,next)=>{
     }
     let requestLimit = 0;
     // checking for the trial period...
-    if(user?.isTrialActive){
+    if(user?.trialActive){
         requestLimit = user?.monthlyRequestCount;
     }
     // checking for the user's monthly request exceeded or not

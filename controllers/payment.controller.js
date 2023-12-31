@@ -86,7 +86,7 @@ const handleFreePlan = asyncHandler(async (req, res) => {
 const handleVerifiedPayment = asyncHandler(async (req, res) => {
   const { paymentId } = req.params;
   try {
-    const paymentIntent = await stripe.paymentIntents.retrieve(paymentId);
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentId);  // to know to complete payment intent of the user 
     // console.log(paymentIntent);
     if (paymentIntent.status !== "succeeded") {
       // get the user metadata
@@ -142,7 +142,7 @@ const handleVerifiedPayment = asyncHandler(async (req, res) => {
           nextBillingDate: calculateNextBillingDate(),
           apiRequestCount: 0,
           monthlyRequestCount:100,
-          subscriptionPlan:"Primiun",
+          subscriptionPlan:"Premiun",
           $addToSet: {
             payments: newPayment?._id,
           },
