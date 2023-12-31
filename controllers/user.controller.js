@@ -2,6 +2,7 @@ const User = require("../models/User.model");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const asyncHandler = require("express-async-handler");
+const { isAuthorised } = require("../middleware/auth.middleware");
 
 //!-----registration-----
 // asyncherror handler is used to handle the asynchronous error  and it is the best practive instead of the try and catch method , it make the error handling more streamline
@@ -96,7 +97,8 @@ const profile = asyncHandler(async (req, res) => {
 
   const user = await User.findById(req?.user?.id) // req?.user?.id :to dynamically check for the user authentication from the req.user
     .select("-password")
-    .populate("payments").populate("history")
+    .populate("payments")
+    .populate("history");
   if (user) {
     res.status(200).json({
       status: "user found",
@@ -108,9 +110,23 @@ const profile = asyncHandler(async (req, res) => {
   }
 });
 
+const checkAuth = asyncHandler(async (req, res) => {
+  const decoded = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
+  if (decoded) {
+    res.json({
+      isAuthorised: true,
+    });
+  } else {
+    res.json({
+      isAuthorised: false,
+    });
+  }
+});
+
 module.exports = {
   register,
   login,
   logout,
   profile,
+  checkAuth,
 };
