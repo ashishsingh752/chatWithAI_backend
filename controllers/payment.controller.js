@@ -56,7 +56,7 @@ const handleFreePlan = asyncHandler(async (req, res) => {
         subscriptionPlan: "Free",
         amount: 0,
         status: "Success",
-        reference: Math.random().toString().substring(7),
+        reference: Math.random().toString(36).substring(7),
         monthlyRequestCount: 5,
         currency: "usd",
       });
