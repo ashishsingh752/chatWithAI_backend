@@ -14,5 +14,5 @@ const contentSchema = new mongoose.Schema(
   { timestamps: true } 
 );
 
-const ContentHistory = mongoose.model("ContentHistory", contentSchema);
+const ContentHistory = mongoose.model("History", contentSchema);
 module.exports = ContentHistory; 

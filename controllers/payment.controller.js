@@ -142,7 +142,7 @@ const handleVerifiedPayment = asyncHandler(async (req, res) => {
           nextBillingDate: calculateNextBillingDate(),
           apiRequestCount: 0,
           monthlyRequestCount:100,
-          subscriptionPlan:"Premiun",
+          subscriptionPlan:"Premium",
           $addToSet: {
             payments: newPayment?._id,
           },

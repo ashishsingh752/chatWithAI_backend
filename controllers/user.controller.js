@@ -47,7 +47,6 @@ const register = asyncHandler(async (req, res) => {
   });
 });
 
-
 ///! ---------login----------
 const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
@@ -69,7 +68,7 @@ const login = asyncHandler(async (req, res) => {
     expiresIn: "3d", // token will expire in 3 days
   });
 
-  console.log(token);
+  // console.log(token);
 
   // setting the token into the cookie (httpOnly)
   res.cookie("token", token, {
@@ -85,21 +84,19 @@ const login = asyncHandler(async (req, res) => {
   });
 });
 
-
-
 //!--------Logout---------
 const logout = asyncHandler(async (req, res) => {
   res.cookie("token", "", { maxAge: 1 });
   return res.status(200).json({ message: "logged out successfull" });
 });
 
-
-
 //!---------Profile---------
 const profile = asyncHandler(async (req, res) => {
-  console.log(req.user);
- 
-  const user = await User.findById(req?.user?.id).select("-password"); // req?.user?.id :to dynamically check for the user authentication from the req.user
+  // console.log(req.user);
+
+  const user = await User.findById(req?.user?.id) // req?.user?.id :to dynamically check for the user authentication from the req.user
+    .select("-password")
+    .populate("payments").populate("history")
   if (user) {
     res.status(200).json({
       status: "user found",
