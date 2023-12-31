@@ -2,13 +2,14 @@ const asyncHandler = require("express-async-handler");
 const calculateNextBillingDate = require("../utils/nextBillingDate");
 const shouldRenewal = require("../utils/shouldRenewal");
 const Payment = require("../models/Payment.model");
+const User = require("../models/User.model");
 
 // const stripe = require("stripe")(process.env.MY_KEY)  // what is the difference , also I have to look in this part more (revise)
 const stripe = require("stripe")(
   "sk_test_51OT0d1SFdvILEADbipAcxOMXnnsCjqDYCgNCq6JU3ccUgvl0YLfGVQlnr0Y1jEvQSCoJSWFW1MfEBCy6OY9OQSzG00eNyppiD9"
 );
 
-// --- strip payment---
+//!--- strip payment---
 const handleStripePayment = asyncHandler(async (req, res, next) => {
   // console.log(process.env.MY_KEY);
   const { amount, subscriptionPlan } = req.body;
@@ -40,6 +41,7 @@ const handleStripePayment = asyncHandler(async (req, res, next) => {
   }
 });
 
+//!------handleFreePlan Payment
 const handleFreePlan = asyncHandler(async (req, res) => {
   const user = req?.user; //get the login user
 
@@ -80,7 +82,86 @@ const handleFreePlan = asyncHandler(async (req, res) => {
   // update the user account
 });
 
+//!----- handle the verified Payment user
+const handleVerifiedPayment = asyncHandler(async (req, res) => {
+  const { paymentId } = req.params;
+  try {
+    const paymentIntent = await stripe.paymentIntents.retrieve(paymentId);
+    // console.log(paymentIntent);
+    if (paymentIntent.status !== "succeeded") {
+      // get the user metadata
+      const metadata = paymentIntent?.metadata;
+      const subscriptionPlan = metadata?.subscriptionPlan;
+      const userEmail = metadata?.userEmail;
+      const userId = metadata?.userId;
+
+      // find the user
+      const userFound = await User.findById(userId);
+      if (!userFound) {
+        return res.status(404).json({
+          status: "false",
+          message: "User not found",
+        });
+      }
+      // get the payment details
+      const amount = paymentIntent?.amount / 100;
+      const currency = paymentIntent?.currency;
+      const paymentId = paymentIntent?.id;
+      // create the payment history of the user
+      const newPayment = await Payment.create({
+        user: userId,
+        email: userEmail,
+        subscriptionPlan,
+        currency,
+        amount,
+        status: "success",
+        reference: paymentId,
+      });
+      // check for the subscription plan of the user
+      if (subscriptionPlan === "Basic") {
+        const updatedUser = await User.findByIdAndUpdate(userId, {
+          trialPeriod: 0,
+          nextBillingDate: calculateNextBillingDate(),
+          apiRequestCount: 0,
+          subscriptionPlan:"Basic",
+          monthlyRequestCount:50,
+          $addToSet: {
+            payments: newPayment?._id,
+          },
+        });
+        res.json({
+          status:true,
+          message: "Payment verified, user updated successfully",
+          updatedUser,
+        })
+      }
+      // for the premium Plan 
+      if (subscriptionPlan === "Premium") {
+        const updatedUser = await User.findByIdAndUpdate(userId, {
+          trialPeriod: 0,
+          nextBillingDate: calculateNextBillingDate(),
+          apiRequestCount: 0,
+          monthlyRequestCount:100,
+          subscriptionPlan:"Primiun",
+          $addToSet: {
+            payments: newPayment?._id,
+          },
+        });
+        res.json({
+          status:true,
+          message: "Payment verified, user updated successfully",
+          updatedUser,
+        })
+      }
+      // await newPayment.save();
+    }
+  } catch (error) {
+    throw new Error(error);
+  }
+});
+
 module.exports = {
   handleStripePayment,
   handleFreePlan,
+  handleVerifiedPayment,
 };
