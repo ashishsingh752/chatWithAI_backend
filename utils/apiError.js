@@ -10,7 +10,7 @@ class ApiError extends Error {
     this.statusCode = statusCode;
     this.data = null; 
     this.success = false;
-    this.errors = errors; 
+    this.errors = errors;
 
     if (stack) {
       this.stack = stack;
@@ -20,8 +20,6 @@ class ApiError extends Error {
   }
 }
 
-
 // const apiError = new ApiError(404, "Resource not found", ["Error details"]);
 // console.log(apiError);
-
-export default {ApiError}
+module.exports = ApiError;

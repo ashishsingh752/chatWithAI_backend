@@ -8,6 +8,6 @@ const asyncHandler = (requestHandler) => {
     };
   };
   
-  export { asyncHandler };
+  module.exports =  asyncHandler ;
   
   // this is how we can use the custom asyncHandler 
