@@ -7,6 +7,7 @@ const { openAIRouter } = require("./routes/openAI.route");
 const paymentRouter = require("./routes/stripePayment.route");
 const cron = require("node-cron");
 const User = require("./models/User.model");
+const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
@@ -93,6 +94,11 @@ app.use(cookieParser()); // pass the cookie automatically by default express do 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+const corsOptions = {
+  origin: "http://localhost:5173",
+  credentials: true,
+};
+app.use(cors(corsOptions));
 //----Routes---
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/openAI", openAIRouter);
