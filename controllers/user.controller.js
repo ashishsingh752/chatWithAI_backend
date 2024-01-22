@@ -98,7 +98,7 @@ const profile = asyncHandler(async (req, res) => {
   const user = await User.findById(req?.user?.id) // req?.user?.id :to dynamically check for the user authentication from the req.user
     .select("-password")
     .populate("payments")
-    .populate("history");
+    .populate("contentHistory");
   if (user) {
     res.status(200).json({
       status: "user found",
@@ -110,6 +110,7 @@ const profile = asyncHandler(async (req, res) => {
   }
 });
 
+// !--- checking the user authentication
 const checkAuth = asyncHandler(async (req, res) => {
   const decoded = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
   if (decoded) {

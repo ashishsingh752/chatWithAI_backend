@@ -10,7 +10,7 @@ const isAuthorised = asyncHandler(async (req, res, next) => {
     req.user = await User.findById(decoded?.id).select("-password");  // here we are adding the loggedIn user to the request object so that we can access it anywhere
     next();
   } else {
-    return res.status(401).json({ message: "Not authoriszed, no token found" });
+    return res.status(401).json({ message: "Not authorised, no token found" });
   }
 });
 
