@@ -12,11 +12,11 @@ const openAIController = asyncHandler(async (req, res) => {
   const { prompt } = req.body;
   try {
     const response = await axios.post(
-      "https://api.openai.com/v1/completions",
+      "http://api.openai.com/v1/completions",
       {
         model: "gpt-3.5-turbo-instruct",
         prompt,
-        max_tokens: 3,
+        max_tokens: 10,
       },
       {
         headers: {
@@ -36,7 +36,7 @@ const openAIController = asyncHandler(async (req, res) => {
     });
     // // put the content into the user
     const userFound = await User.findById(req?.user?.id);
-    userFound.history.push(newContent?._id);
+    userFound.contentHistory.push(newContent?._id);
     userFound.apiRequestCount +=1 ;  // updating the api request count for each request 
     await userFound.save();
 

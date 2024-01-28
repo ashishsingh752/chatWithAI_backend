@@ -3,33 +3,33 @@ const calculateNextBillingDate = require("../utils/nextBillingDate");
 const shouldRenewal = require("../utils/shouldRenewal");
 const Payment = require("../models/Payment.model");
 const User = require("../models/User.model");
+require("dotenv").config();
 
-// const stripe = require("stripe")(process.env.MY_KEY)  // what is the difference , also I have to look in this part more (revise)
-const stripe = require("stripe")(
-  "sk_test_51OT0d1SFdvILEADbipAcxOMXnnsCjqDYCgNCq6JU3ccUgvl0YLfGVQlnr0Y1jEvQSCoJSWFW1MfEBCy6OY9OQSzG00eNyppiD9"
-);
+const stripe = require("stripe")(process.env.STRIPE_ID);
 
-//!--- strip payment---
+// !--- strip payment---
 const handleStripePayment = asyncHandler(async (req, res, next) => {
   // console.log(process.env.MY_KEY);
-  const { amount, subscriptionPlan } = req.body;
+  const { amount, subscriptionPlan, payment_method } = req.body;
   //get the user
   const user = req?.user;
-  //   console.log(user);
+    console.log(user);
   try {
     // create payment intent  https://chat.openai.com/c/751d9910-196d-471f-9412-4f315d78762b
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Number(amount) * 100,
       currency: "usd",
+      // payment_method,
       // add some data , tha meta object
       metadata: {
         userId: user?._id?.toString(),
         userEmail: user?.email,
         subscriptionPlan,
+        // payment_method,
       },
     });
     // send the response
-    // console.log(paymentIntent);
+    console.log('this is the payment Intent', paymentIntent?.client_secret);
     res.json({
       clientSecret: paymentIntent?.client_secret,
       paymentId: paymentIntent?.id,
@@ -37,7 +37,7 @@ const handleStripePayment = asyncHandler(async (req, res, next) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error });
+    res.status(500).json({ error:error });
   }
 });
 
@@ -85,10 +85,11 @@ const handleFreePlan = asyncHandler(async (req, res) => {
 //!----- handle the verified Payment user
 const handleVerifiedPayment = asyncHandler(async (req, res) => {
   const { paymentId } = req.params;
+  // console.log(paymentId);
   try {
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentId);  // to know to complete payment intent of the user 
     // console.log(paymentIntent);
-    if (paymentIntent.status !== "succeeded") {
+    if (paymentIntent.status === "succeeded") { 
       // get the user metadata
       const metadata = paymentIntent?.metadata;
       const subscriptionPlan = metadata?.subscriptionPlan;
@@ -120,6 +121,7 @@ const handleVerifiedPayment = asyncHandler(async (req, res) => {
       // check for the subscription plan of the user
       if (subscriptionPlan === "Basic") {
         const updatedUser = await User.findByIdAndUpdate(userId, {
+
           trialPeriod: 0,
           nextBillingDate: calculateNextBillingDate(),
           apiRequestCount: 0,

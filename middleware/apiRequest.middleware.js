@@ -18,7 +18,7 @@ const apiReqest = asyncHandler(async(req,res,next)=>{
         requestLimit = user?.monthlyRequestCount;
     }
     // checking for the user's monthly request exceeded or not
-    if(user?.apiRequestCount >= 1){
+    if(user?.apiRequestCount >= user?.monthlyRequestCount){
         throw new Error("Opps... Request limit reached, Please Subscribe.")
     }
     next();
