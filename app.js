@@ -105,5 +105,5 @@ app.use("/api/v1/openAI", openAIRouter);
 app.use("/api/v1/payment", paymentRouter);
 
 app.use(errorhandler); // middleware should come after the setting up the routes
-connectDB("mongodb://127.0.0.1:27017/searchapp");
+connectDB(process.env.MONGO_URI);
 app.listen(PORT, () => console.log(`server is Live at ${PORT}`));

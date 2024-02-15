@@ -19,8 +19,7 @@ const handleStripePayment = asyncHandler(async (req, res, next) => {
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Number(amount) * 100,
       currency: "usd",
-      // payment_method,
-      // add some data , tha meta object
+      // payment_method_types:["card"],
       metadata: {
         userId: user?._id?.toString(),
         userEmail: user?.email,
